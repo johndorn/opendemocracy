@@ -1,3 +1,13 @@
+=====
+Concept
+=====
+--------
+Given today's technology there is no reason we should not be able to exercise our democratic rights via the internet.
+
+This OpenDemocracy project will be an effort to create a community verified implementation of a 
+safe, secure, anonymous, verifiable internet voting mechanism. The idea is to use modern cryptographic
+technology, the same that's used to manage every multi-billion dollar account, or transfer confidential
+state documents.
 
 =====
 Requirements
@@ -9,11 +19,15 @@ Overview
 - Must restrict user to voting only once per election on any ballot issue or candidate
 - Must anonymize actual votes
 - Need to prevent this person from voting again in person
-- 	How is this done with respect to absentee/provisional ballots currently?
 
 
 =====
 =====
+Challenges
+--------
+- How do we prevent a person from voting online and in person? - *How is this done for absentee and provisional ballots currently?*
+ 	
+
 Authentication - Possible implementations
 --------
 - client certificates
