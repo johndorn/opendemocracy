@@ -9,13 +9,12 @@ Overview
 - Must restrict user to voting only once per election on any ballot issue or candidate
 - Must anonymize actual votes
 - Need to prevent this person from voting again in person
--- How is this done with respect to absentee/provisional ballots currently?
+- 	How is this done with respect to absentee/provisional ballots currently?
 
 
 =====
-Authentication
 =====
-Possible implementations
+Authentication - Possible implementations
 --------
 - client certificates
 - passwords using advanced, but slow, hashing
