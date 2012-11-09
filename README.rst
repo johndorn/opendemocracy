@@ -23,20 +23,3 @@ Overview
 - Need to prevent this person from voting again in person
 
 
-=====
-=====
-Challenges
---------
-
-- How do we prevent a person from voting online and in person? - *How is this done for absentee and provisional ballots currently?*
- 	
-
-=====
-=====
-Authentication - Possible implementations
---------
-
-- client certificates
-- passwords using advanced, but slow, hashing
-- mixture of the two...
-
