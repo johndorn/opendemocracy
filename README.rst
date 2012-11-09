@@ -28,6 +28,8 @@ Challenges
 - How do we prevent a person from voting online and in person? - *How is this done for absentee and provisional ballots currently?*
  	
 
+=====
+=====
 Authentication - Possible implementations
 --------
 - client certificates
