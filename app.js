@@ -53,6 +53,7 @@ var routes = [
 	  { path: '/', get: routes.index }
 	, { path: '/login', get: routes.login.get, post: routes.login.post }
 	, { path: '/profile', get: [auth.restrict, routes.profile.get], post: [auth.restrict, routes.login.editProfile] } 
+	, { path: '/certificate', get: [auth.restrict, routes.certificate.get], post: [auth.restrict, routes.certificate.post] } 
 	, { path: '/restricted', get: [auth.restrict, auth.verifyCertificate, routes.login.get] }
 ];
 

@@ -1,4 +1,6 @@
 
+var auth = require('../../lib/auth');
+
 // show login page or logged in page
 exports.get = function(req, res) {
 	if(req.session.user) {
@@ -15,7 +17,7 @@ exports.post(req, res) {
 	if( req.body.intended_destination )
 		target = req.body.intended_destination;
 
-	authenticate(req.body.username, req.body.password, function(err, user){
+	auth.authenticateUser(req.body.username, req.body.password, function(err, user){
 		if (user) {
 			// Regenerate session when signing in
 			// to prevent fixation 
