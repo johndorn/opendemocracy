@@ -20,6 +20,8 @@ module.exports.post = function(req, res) {
 					if(validateCert(req.session.user, cert)) {
 						req.session.user.saved_cert = req.connection.getPeerCertificate();
 						req.session.user.updated = new Date();
+						
+						// TODO Update to use certificate object
 						req.session.user.save(function(err) {
 							if(err) {
 								req.session.error = 'Error saving certificate: ' + err;
@@ -58,3 +60,9 @@ module.exports.post = function(req, res) {
 
 	res.redirect('/certificate');
 };
+
+function validateCert(cert) {
+	var valid = true;
+	var required_keys = ['issuer','subject'];
+}
+
