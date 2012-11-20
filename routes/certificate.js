@@ -2,7 +2,7 @@
 var auth = require('../../lib/auth');
 
 module.exports.get = function(req, res) {
-	// show certificates view with cert list
+	// show certificates view with cert info
 };
 
 module.exports.post = function(req, res) {
@@ -17,8 +17,9 @@ module.exports.post = function(req, res) {
 				if( req.session.user.saved_cert ) {
 					req.session.error = 'Certificate already exists.';
 				} else {
-					if(validateCert(req.session.user, cert)) {
-						req.session.user.saved_cert = req.connection.getPeerCertificate();
+					var cert = req.connection.getPeerCertificate();
+					if(validateCert(req, cert)) {
+						req.session.user.saved_cert = cert;
 						req.session.user.updated = new Date();
 						
 						// TODO Update to use certificate object
@@ -48,7 +49,7 @@ module.exports.post = function(req, res) {
 						res.redirect('/certificate');
 					});
 				} else {
-					error = 'No certificate saved.';
+					req.session.error = 'No certificate saved.';
 				}
 				break;
 			case default:
@@ -63,6 +64,18 @@ module.exports.post = function(req, res) {
 
 function validateCert(cert) {
 	var valid = true;
-	var required_keys = ['issuer','subject'];
+	var required_keys = ['issuer', 'subject', 'valid_from', 'valid_to', 'fingerprint'];
+	for(var i = 0, len = required_keys.length; i < len; i++) {
+		if( ! cert[required_keys[i]] )
+			valid = false;
+	}
+
+	var req_subkeys = ['C', 'ST', 'L', 'O', 'OU', 'CN'];
+	for(var i = 0, len = req_subkeys.length; i < len; i++) {
+		if( ! (cert['issuer'][req_subkeys[i]] && cert['subject'][req_subkeys[i]]) )
+			valid = false;
+	}
+	
+	return (valid && req.client.authorized);
 }
 
