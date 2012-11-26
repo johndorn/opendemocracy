@@ -3,6 +3,19 @@
 var cluster = require('cluster')
   , https = require('https');
 
+var argv = require('optimist')
+	.usage('Start web service.\nUsage $0')
+	.demand('k')
+	.alias('k', 'private-key')
+	.describe('k', 'Server Private Key File')
+	.demand('a')
+	.alias('a', 'certificate-authority')
+	.describe('a', 'Server Certificate Authority File')
+	.demand('c')
+	.alias('c', 'client-certificate')
+	.describe('c', 'Server SSL Certificate (for client) File')
+	.argv;
+
 var cpus = require('os').cpus().length || 1;
 
 // If we're the master, fork for each CPU
@@ -21,9 +34,9 @@ if ( cluster.isMaster ) {
 	// app type is express
 	var app = require('./app');
 	var serverOpts = {
-		key: fs.readFileSync('ssl/server.key'), // server private key
+		key: fs.readFileSync('./keys/ca.key'), // server private key
 		cert: fs.readFileSync('ssl/server.crt'), // server certificate
-		ca: fs.readFileSync('ssl/ca.crt'), // authorized certificate authority
+		ca: fs.readFileSync('./certs/ca.crt'), // authorized certificate authority
 		requestCert: true, // get client cert
 		rejectUnauthorized: false // reject unauthorized certificates
 	};

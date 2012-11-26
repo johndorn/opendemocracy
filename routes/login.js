@@ -1,5 +1,5 @@
 
-var auth = require('../../lib/auth');
+var auth = require('../lib/auth');
 
 // show login page or logged in page
 exports.get = function(req, res) {
@@ -11,7 +11,7 @@ exports.get = function(req, res) {
 };
 
 // trigger login event
-exports.post(req, res) {
+exports.post = function(req, res) {
 	
 	var target = 'back';
 	if( req.body.intended_destination )

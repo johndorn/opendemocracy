@@ -1,5 +1,5 @@
 
-var auth = require('../../lib/auth');
+var auth = require('../lib/auth');
 
 module.exports.get = function(req, res) {
 	// show certificates view with cert info
@@ -52,7 +52,7 @@ module.exports.post = function(req, res) {
 					req.session.error = 'No certificate saved.';
 				}
 				break;
-			case default:
+			default:
 				req.session.error = 'Invalid Request';
 		};
 	} else {

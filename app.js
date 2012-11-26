@@ -52,23 +52,31 @@ app.configure('development', function(){
 var routes = [
 	  { path: '/', get: routes.index }
 	, { path: '/login', get: routes.login.get, post: routes.login.post }
-	, { path: '/profile', get: [auth.restrict, routes.profile.get], post: [auth.restrict, routes.login.editProfile] } 
+	//, { path: '/profile', get: [auth.restrict, routes.profile.get], post: [auth.restrict, routes.login.editProfile] } 
 	, { path: '/certificate', get: [auth.restrict, routes.certificate.get], post: [auth.restrict, routes.certificate.post] } 
-	, { path: '/restricted', get: [auth.restrict, auth.verifyCertificate, routes.login.get] }
+	//, { path: '/restricted', get: [auth.restrict, auth.verifyCertificate, routes.login.get] }
 ];
 
 for( var i = 0, len = routes.length; i < len; i++) {
 	if(routes[i].get) {
-		app.get.apply(app.get, fixRoute(routes[i].path, routes[i].get);
+		var params = fixRoute(routes[i].get);
+		eval('app.get(routes[i].path, ' + params.join(',') + ');');
+		//app.get.apply(app.get, fixRoute(routes[i].path, routes[i].get));
 	}
 	if(routes[i].put) {
-		app.put.apply(app.put, fixRoute(routes[i].path, routes[i].put);
+		var params = fixRoute(routes[i].put);
+		eval('app.put(routes[i].path, ' + params.join(',') + ');');
+		//app.put.apply(app.put, fixRoute(routes[i].path, routes[i].put));
 	}
 	if(routes[i].post) {
-		app.post.apply(app.post, fixRoute(routes[i].path, routes[i].post);
+		var params = fixRoute(routes[i].post);
+		eval('app.post(routes[i].path, ' + params.join(',') + ');');
+		//app.post.apply(app.post, fixRoute(routes[i].path, routes[i].post));
 	}
 	if(routes[i].delete) {
-		app.delete.apply(app.delete, fixRoute(routes[i].path, routes[i].delete);
+		var params = fixRoute(routes[i].delete);
+		eval('app.delete(routes[i].path, ' + params.join(',') + ');');
+		//app.delete.apply(app.delete, fixRoute(routes[i].path, routes[i].delete));
 	}
 }
 
