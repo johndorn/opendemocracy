@@ -1,22 +1,24 @@
 
 // Initialize the cluster and get reference to http object
 var cluster = require('cluster')
-  , https = require('https');
+  , https = require('https')
+  , fs = require('fs');
 
 var argv = require('optimist')
 	.usage('Start web service.\nUsage $0')
-	.demand('k')
+	.default('k','./testing/keys/ca.key')
 	.alias('k', 'private-key')
 	.describe('k', 'Server Private Key File')
-	.demand('a')
+	.default('a', './testing/certs/ca.crt')
 	.alias('a', 'certificate-authority')
 	.describe('a', 'Server Certificate Authority File')
-	.demand('c')
+	.default('c','./testing/certs/server_ssl_cert.crt')
 	.alias('c', 'client-certificate')
 	.describe('c', 'Server SSL Certificate (for client) File')
 	.argv;
 
-var cpus = require('os').cpus().length || 1;
+//var cpus = require('os').cpus().length || 1;
+var cpus = 1;
 
 // If we're the master, fork for each CPU
 if ( cluster.isMaster ) {
@@ -34,9 +36,9 @@ if ( cluster.isMaster ) {
 	// app type is express
 	var app = require('./app');
 	var serverOpts = {
-		key: fs.readFileSync('./keys/ca.key'), // server private key
-		cert: fs.readFileSync('ssl/server.crt'), // server certificate
-		ca: fs.readFileSync('./certs/ca.crt'), // authorized certificate authority
+		key: fs.readFileSync(argv.k), // server private key
+		cert: fs.readFileSync(argv.c), // server certificate
+		ca: fs.readFileSync(argv.a), // authorized certificate authority
 		requestCert: true, // get client cert
 		rejectUnauthorized: false // reject unauthorized certificates
 	};
