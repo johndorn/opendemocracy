@@ -57,38 +57,27 @@ var routes = [
 	//, { path: '/restricted', get: [auth.restrict, auth.verifyCertificate, routes.login.get] }
 ];
 
-console.log('configuring routes');
-console.log(routes);
-
 for( var i = 0, len = routes.length; i < len; i++) {
 	if(routes[i].get) {
 		var params = fixRoute('get', routes[i].get);
-		console.log('loading get for ' + routes[i].path);
-		console.log(params);
-		console.log('app.get(routes[i].path, ' + params.join(',') + ');');
 		eval('app.get(routes[i].path, ' + params.join(',') + ');');
-		//app.get.apply(app.get, fixRoute(routes[i].path, routes[i].get));
 	}
 	if(routes[i].put) {
 		var params = fixRoute('put', routes[i].put);
 		eval('app.put(routes[i].path, ' + params.join(',') + ');');
-		//app.put.apply(app.put, fixRoute(routes[i].path, routes[i].put));
 	}
 	if(routes[i].post) {
 		var params = fixRoute('post', routes[i].post);
 		eval('app.post(routes[i].path, ' + params.join(',') + ');');
-		//app.post.apply(app.post, fixRoute(routes[i].path, routes[i].post));
 	}
 	if(routes[i].delete) {
 		var params = fixRoute('delete', routes[i].delete);
 		eval('app.delete(routes[i].path, ' + params.join(',') + ');');
-		//app.delete.apply(app.delete, fixRoute(routes[i].path, routes[i].delete));
 	}
 }
 
 function fixRoute(verb, routes) {
 	var newArr = [];
-	console.log(fixRoute);
 	if( ! routes) {
 		return newArr;
 	}
@@ -100,7 +89,7 @@ function fixRoute(verb, routes) {
 	} else {
 		newArr.push('routes[i].' + verb);
 	}
-	console.log(newArr);
+	
 	return newArr;
 }
 
