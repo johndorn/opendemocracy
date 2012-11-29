@@ -37,7 +37,8 @@ if ( cluster.isMaster ) {
 	var app = require('./app');
 	var serverOpts = {
 		key: fs.readFileSync(argv.k), // server private key
-		cert: fs.readFileSync(argv.c), // server certificate
+		//cert: fs.readFileSync(argv.c), // server certificate
+		cert: fs.readFileSync(argv.a), // server certificate
 		ca: fs.readFileSync(argv.a), // authorized certificate authority
 		requestCert: true, // get client cert
 		rejectUnauthorized: false // reject unauthorized certificates

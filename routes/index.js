@@ -1,13 +1,10 @@
 
 var   login = require('./login')
-	, certificate = require('./certificate');
+	, certificate = require('./certificate')
+	, home = require('./home');
 
 exports.login = login;
-exports.certificate = login;
-
-exports.index = function(req, res) {
-	var session = req.session;
-	
-};
+exports.certificate = certificate;
+exports.home = home;
 
 
