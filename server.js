@@ -6,15 +6,15 @@ var cluster = require('cluster')
 
 var argv = require('optimist')
 	.usage('Start web service.\nUsage $0')
-	.default('k','./testing/keys/ca.key')
-	.alias('k', 'private-key')
 	.describe('k', 'Server Private Key File')
+	.default('k','./testing/keys/server.key')
+	.alias('k', 'private-key')
+	.describe('a', 'Server Certificate Authority File')
 	.default('a', './testing/certs/ca.crt')
 	.alias('a', 'certificate-authority')
-	.describe('a', 'Server Certificate Authority File')
-	.default('c','./testing/certs/server_ssl_cert.crt')
-	.alias('c', 'client-certificate')
 	.describe('c', 'Server SSL Certificate (for client) File')
+	.default('c','./testing/certs/server.crt')
+	.alias('c', 'client-certificate')
 	.argv;
 
 //var cpus = require('os').cpus().length || 1;
@@ -37,11 +37,12 @@ if ( cluster.isMaster ) {
 	var app = require('./app');
 	var serverOpts = {
 		key: fs.readFileSync(argv.k), // server private key
-		//cert: fs.readFileSync(argv.c), // server certificate
-		cert: fs.readFileSync(argv.a), // server certificate
+		cert: fs.readFileSync(argv.c), // server certificate
+		//cert: fs.readFileSync(argv.a), // server certificate
 		ca: fs.readFileSync(argv.a), // authorized certificate authority
 		requestCert: true, // get client cert
 		rejectUnauthorized: false // reject unauthorized certificates
+		//rejectUnauthorized: true // reject unauthorized certificates
 	};
 
 	var server = module.exports = https.createServer(serverOpts, app).listen(app.get('port'), function() {

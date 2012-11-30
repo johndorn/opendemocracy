@@ -1,0 +1,25 @@
+extend layout
+block content
+	form(id='regform',  method='POST', target='/register')
+		label
+			| Email Address:
+			input(type='text', id='email', name='email', size='40')
+		label
+			| Password:
+			input(type='password', id='password', name='password', size='40')
+		label
+			| Confirm Password:
+			input(type='password', id='password_confirm', name='password_confirm', size='40')
+		input(type='submit', value='Submit')
+	script
+		$('#regform').submit(function() {
+			var   pw = $('#password').val()
+				, cpw = $('#password_confirm').val();
+			if (pw != cpw) {
+				alert('Passwords don\'t match');
+				return false;
+			}
+
+			return true;
+		});
+	

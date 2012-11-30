@@ -13,5 +13,7 @@
 	, "dateformat": "*"
 	, "jade": "0.27.7"
   	, "optimist":"0.3.5"
+	, "stylus":"0.31.0"
+	, "nib":"0.9.0"
   }
 }

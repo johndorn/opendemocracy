@@ -3,6 +3,10 @@ var auth = require('../lib/auth');
 
 module.exports.get = function(req, res) {
 	// show certificates view with cert info
+	res.render('index', {
+		title: 'Home'
+		, certificate: auth.getCertificate()
+	});
 };
 
 module.exports.post = function(req, res) {
@@ -17,7 +21,7 @@ module.exports.post = function(req, res) {
 				if( req.session.user.saved_cert ) {
 					req.session.error = 'Certificate already exists.';
 				} else {
-					var cert = req.connection.getPeerCertificate();
+					var cert = auth.getCertificate(req);
 					if(validateCert(req, cert)) {
 						req.session.user.saved_cert = cert;
 						req.session.user.updated = new Date();
