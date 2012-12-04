@@ -1,11 +1,15 @@
 !!!5
 html
 	head
-		title #{title} - OpenDemocracy
+		if typeof(title) != 'undefined'
+			title #{title} - OpenDemocracy
+		else
+			title OpenDemocracy
 		link(rel='stylesheet', href='/stylesheets/style.css')
 		link(rel='stylesheet', href='/stylesheets/jquery-ui-1.9.2.custom.css')
 		script(type='text/javascript', src='/js/jquery-1.8.3.js')
 		script(type='text/javascript', src='/js/jquery-ui-1.9.2.custom.js')
+		block custom_script
 	body
 		header
 			h1 OpenDemocracy
@@ -15,17 +19,28 @@ html
 					.error
 						p
 							| #{error}
+				if typeof(feedback) != 'undefined'
+					.feedback
+						p
+							| #{feedback}
 				block content
 			.sidebar
-				.widget
-					h1 Widget
 				ul
-					li.first
-						a(href='/login') Login
-					li
-						a(href='/certificate') Certificate
-					li.last
-						a(href='/register') Register
+					if user
+						li.nav
+							a(href='/logout') Logout
+						li.nav
+							a(href='/certificate') Certificate
+						li.nav
+							a(href='/profile') Profile
+					else
+						li.nav
+							a(href='/login') Login
+						li.nav
+							a(href='/register') Register
+					each title, url in sub_nav
+						li.sub_nav
+							a(href=url) #{title}
 				p
 					| Vivamus hendrerit arcu sed erat molestie
 					| vehicula.

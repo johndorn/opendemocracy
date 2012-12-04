@@ -1,0 +1,10 @@
+extend layout
+block content
+	form(id='regform',  method='POST', action='/login')
+		label
+			| Email Address:
+			input(type='text', id='email', name='email', size='40')
+		label
+			| Password:
+			input(type='password', id='password', name='password', size='40')
+		input(type='submit', value='Submit')

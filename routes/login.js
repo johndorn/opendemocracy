@@ -1,13 +1,18 @@
 
-var auth = require('../lib/auth');
+var auth = require('../lib/auth')
+	, util = require('../lib/util');
 
 // show login page or logged in page
 exports.get = function(req, res) {
 	if(req.session.user) {
-		res.redirect('/profile');
+		res.redirect('/');
 	}
 
 	// show login page
+	res.render('login', {
+		title: 'Login'
+		, certificate: auth.getCertificate()
+	});
 };
 
 // trigger login event
@@ -17,7 +22,7 @@ exports.post = function(req, res) {
 	if( req.body.intended_destination )
 		target = req.body.intended_destination;
 
-	auth.authenticateUser(req.body.username, req.body.password, function(err, user){
+	auth.authenticateUser(req.body.email, req.body.password, function(err, user){
 		if (user) {
 			// Regenerate session when signing in
 			// to prevent fixation 
@@ -30,8 +35,11 @@ exports.post = function(req, res) {
 				res.redirect(target);
 			});
 		} else {
-			req.session.error = 'Invalid Username or Password';
-			res.redirect('/login');
+			res.render('login', {
+				title: 'Login'
+				, certificate: auth.getCertificate()
+				, error: 'Login failure, check credentials and try again'
+			});
 		}
 	});
 };

@@ -1,85 +1,63 @@
 
-var auth = require('../lib/auth');
+var   auth = require('../lib/auth')
+	, Certificate = require('../lib/certificate')
+	, User = require('../lib/user');
 
 module.exports.get = function(req, res) {
 	// show certificates view with cert info
-	res.render('index', {
-		title: 'Home'
-		, certificate: auth.getCertificate()
+	var saved_cert_id = req.session.user.saved_cert;
+	
+	var cb = function(error, feedback, certificate) {
+		return res.render('certificate', {
+			title: 'certificate',
+			error: error,
+			feedback: feedback,
+			user_stored_certificate: certificate
+		});
+	}
+	Certificate.findOne({"id": saved_cert_id}, function(err, doc) {
+		if(err) {
+			return cb(err.message, '', {});
+		}
+		return cb('', '', doc);
 	});
 };
 
-module.exports.post = function(req, res) {
-	// add new cert, or remove existing one
-	// would be better to use DELETE http method, but we only do cert changes
-	// after user has re-entered password
-	
-	var provided_password = auth.hash(req.body.current_password);
-	if(provided_password == req.session.user.password) {
-		switch(req.action) {
-			case 'add':
-				if( req.session.user.saved_cert ) {
-					req.session.error = 'Certificate already exists.';
-				} else {
-					var cert = auth.getCertificate(req);
-					if(validateCert(req, cert)) {
-						req.session.user.saved_cert = cert;
-						req.session.user.updated = new Date();
-						
-						// TODO Update to use certificate object
-						req.session.user.save(function(err) {
-							if(err) {
-								req.session.error = 'Error saving certificate: ' + err;
-								console.log('Cert saving error');
-								console.log(err);
-							}
+module.exports.delete = function(req, res) {
+	var user = new User(req.session.user); // Is this a mongoose model obj?
 
-							req.session.user = user;
-							res.redirect('/certificate');
-						});
-					}
-				}
-				break;
-			case 'remove':
-				if( req.session.user.saved_cert ) {
-					req.session.user.saved_cert = null;
-					req.session.user.updated = new Date();
-					req.session.user.save(function(err) {
-						if(err) {
-							req.session.error = 'Error removing certificate: ' + err;
-							console.log('Cert removing error');
-							console.log(err);
-						}
-						res.redirect('/certificate');
-					});
-				} else {
-					req.session.error = 'No certificate saved.';
-				}
-				break;
-			default:
-				req.session.error = 'Invalid Request';
+	user.saved_cert = null;
+	user.save(function(err) {
+		var template_vars = {
+			title: 'Certificate'
 		};
-	} else {
-		req.session.error = 'Invalid Password';
-	}
 
-	res.redirect('/certificate');
+		if(err) {
+			template_vars.error = 'Certificate removal error: ' + err.message;
+		}
+
+		return res.render('certificate', {
+			title: 'Certificate'
+			, certificate: auth.getCertificate()
+		});
+	});
+
 };
 
-function validateCert(cert) {
-	var valid = true;
-	var required_keys = ['issuer', 'subject', 'valid_from', 'valid_to', 'fingerprint'];
-	for(var i = 0, len = required_keys.length; i < len; i++) {
-		if( ! cert[required_keys[i]] )
-			valid = false;
-	}
-
-	var req_subkeys = ['C', 'ST', 'L', 'O', 'OU', 'CN'];
-	for(var i = 0, len = req_subkeys.length; i < len; i++) {
-		if( ! (cert['issuer'][req_subkeys[i]] && cert['subject'][req_subkeys[i]]) )
-			valid = false;
-	}
-	
-	return (valid && req.client.authorized);
-}
+module.exports.put = function(req, res) {
+	// Attempt to save cert, trap duplicate fingerprint exception
+	// Save user record with cert that now has id
+	console.log('got put');
+	new Certificate(auth.getCertificate()).save(function(err) {
+		if(err) {
+			if(err.code === 11000) {
+				req.session.error = 'Invalid certificate. This certificate is already in use.'
+			} else {
+				req.session.error = 'Error saving certificate: ' + err.message;
+			}
+		}
+		console.log('redirecting');
+		return res.redirect('/certificate');
+	});
+};
 

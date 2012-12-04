@@ -1,13 +1,27 @@
 extend layout
+block custom_script
 block content
-	p
-		| Vivamus hendrerit arcu sed erat molestie
-		| vehicula. Sed auctor neque eu tellus
-		| rhoncus ut eleifend nibh porttitor. Ut in.
-	p
-		| Donec congue lacinia dui, a porttitor
-		| lectus condimentum laoreet. Nunc eu
-		| ullamcorper orci. Quisque eget odio ac
-		| lectus vestibulum faucibus eget in metus.
-		| In pellentesque faucibus vestibulum. Nulla
-		| at nulla justo, eget luctus tortor.
+	.certificate
+		if user_stored_certificate
+			p
+				| Current Stored Certificate Information
+			p.subheading
+				| To remove this certificate click
+				form(action="/certificate/delete", method="POST", id="frm_delete_certificate")
+					input(type="submit", id="delete_certificate", value="Remove this certificate")
+			dl.certificate
+				dt Subject Common Name
+				dd #{user_stored_certificate.subject.CN}
+				dt Issuer Common Name
+				dd #{user_stored_certificate.issuer.CN}
+				dt Fingerprint
+				dd #{user_stored_certificate.fingerprint}
+				dt Valid Start
+				dd #{user_stored_certificate.valid_from}
+				dt Valid End
+				dd #{user_stored_certificate.valid_to}
+		else
+			p
+				| No Stored Certificate Found
+				form(action="/certificate", method="POST", id="frm_add_certificate") 
+					input(type="submit", id="add_certificate", value="Add installed certificate")
