@@ -11,7 +11,6 @@ exports.get = function(req, res) {
 	// show login page
 	res.render('login', {
 		title: 'Login'
-		, certificate: auth.getCertificate()
 	});
 };
 
@@ -37,7 +36,6 @@ exports.post = function(req, res) {
 		} else {
 			res.render('login', {
 				title: 'Login'
-				, certificate: auth.getCertificate()
 				, error: 'Login failure, check credentials and try again'
 			});
 		}

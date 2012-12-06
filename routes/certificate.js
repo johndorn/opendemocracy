@@ -5,40 +5,48 @@ var   auth = require('../lib/auth')
 
 module.exports.get = function(req, res) {
 	// show certificates view with cert info
+	var req_id = req.params.id;
 	var saved_cert_id = req.session.user.saved_cert;
-	
-	var cb = function(error, feedback, certificate) {
-		return res.render('certificate', {
-			title: 'certificate',
-			error: error,
-			feedback: feedback,
-			user_stored_certificate: certificate
-		});
+	console.log(req.session.user);
+	if( req_id && (req_id !== saved_cert_id) ) {
+		return res.status(401).end(JSON.stringify({"ok":0, "error_msg":'Cert id ' + req_id + ' requested but not associated with user'}));
 	}
-	Certificate.findOne({"id": saved_cert_id}, function(err, doc) {
+
+	Certificate.findOne({"_id": saved_cert_id}, function(err, doc) {
+		var error;
+		console.log({err: err, doc: doc});
+		var ret = doc ? doc : {};
 		if(err) {
-			return cb(err.message, '', {});
+			error = 'Error getting certificate id ' + saved_cert_id + ': ' + err.message;
 		}
-		return cb('', '', doc);
+		
+		if(req_id) { // ajax
+			if(err)
+				return ajax_error(res, 500, err);
+			return res.status(200).end(JSON.stringify({"ok":1, "cert": ret}));
+		}
+		return res.render('certificate', {
+			title: 'Certificate',
+			error: error,
+			user_certificate: ret
+		});
 	});
 };
 
 module.exports.delete = function(req, res) {
-	var user = new User(req.session.user); // Is this a mongoose model obj?
+	var req_id = req.params.id;
+	var saved_cert_id = req.session.user.saved_cert;
+	if( req_id && (req_id !== saved_cert_id) ) {
+		return res.status(401).end(JSON.stringify({"ok":0, "error_msg":'Delete cert id ' + req_id + ' requested but not associated with user'}));
+	}
 
-	user.saved_cert = null;
-	user.save(function(err) {
-		var template_vars = {
-			title: 'Certificate'
-		};
-
-		if(err) {
-			template_vars.error = 'Certificate removal error: ' + err.message;
-		}
-
-		return res.render('certificate', {
-			title: 'Certificate'
-			, certificate: auth.getCertificate()
+	User.update({"_id":req.session.user.id}, {$set: {"saved_cert": null}}, function(err, user) {
+		if(err)
+			return ajax_error(res, 500, err);
+		Certificate.find({"_id": saved_cert_id}).remove(function(err) {
+			if(err)
+				return ajax_error(res, 500, err);
+			return res.status(200).end(JSON.stringify({"ok":1}));
 		});
 	});
 
@@ -47,17 +55,24 @@ module.exports.delete = function(req, res) {
 module.exports.put = function(req, res) {
 	// Attempt to save cert, trap duplicate fingerprint exception
 	// Save user record with cert that now has id
-	console.log('got put');
-	new Certificate(auth.getCertificate()).save(function(err) {
-		if(err) {
-			if(err.code === 11000) {
-				req.session.error = 'Invalid certificate. This certificate is already in use.'
-			} else {
-				req.session.error = 'Error saving certificate: ' + err.message;
-			}
-		}
-		console.log('redirecting');
-		return res.redirect('/certificate');
+	if(req.session.user.saved_cert)
+		return res.status(405).end(JSON.stringify({"ok":0, "error_msg":"Certificate already installed. Please delete existing certificate to replace."}));
+		
+	new Certificate(auth.getCertificate()).save(function(err, cert) {
+		if(err)
+			return ajax_error(res, 500, err);
+
+		User.update({"_id":req.session.user.id}, {$set: {"saved_cert": cert.id}}, function(err, user) {
+			if(err)
+				return ajax_error(res, 500, err);
+			req.session.user = user;
+			return res.status(200).end(JSON.stringify({"ok":1, "cert":cert}));
+		});
 	});
 };
 
+function ajax_error(res, status, err) {
+	console.log('error:');
+	console.log(err);
+	return res.status(status).end(JSON.stringify({"ok":0, "err":err}));
+}

@@ -1,27 +1,68 @@
 extend layout
 block custom_script
+	script(type='text/javascript')
+		$(document).ready(function(){
+			var certificate_id = '#{user_certificate.id}';
+			$('#delete_certificate').click(function(e) {
+				if( ! certificate_id )
+					return false;
+				$.ajax('/certificate/' + certificate_id, {
+					type: 'DELETE',
+					success: function(data) {
+						var d = JSON.parse(data);
+						$('.certificate').hide();
+						$('.no-certificate').show();
+					},
+					error: function(data) {
+						var d = JSON.parse(data);
+						alert('Error deleting certificate. ' + data.error_msg);
+					}
+				});
+			});
+			$('#add_certificate').click(function(e) {
+				$.ajax('/certificate/new', {
+					type: 'PUT',
+					success: function(data) {
+						var d = JSON.parse(data);
+						certificate_id = d.cert.id;
+						$('.certificate').show();
+						$('.no-certificate').hide();
+					},
+					error: function(data) {
+						var d = JSON.parse(data);
+						alert('Error deleting certificate. ' + data.error_msg);
+					}
+				});
+			});
+		});
+
 block content
-	.certificate
-		if user_stored_certificate
+	.certificate-container
+		- var hide_class = user_certificate ? '' : 'hide';
+		div(class="certificate " + hide_class)
 			p
 				| Current Stored Certificate Information
 			p.subheading
 				| To remove this certificate click
-				form(action="/certificate/delete", method="POST", id="frm_delete_certificate")
-					input(type="submit", id="delete_certificate", value="Remove this certificate")
-			dl.certificate
+				input(type="button", id="delete_certificate", value="Remove this certificate")
+			dl(class="certificate-content", id="certificate-content")
+				if ! Object.keys(user_certificate).length
+					- user_certificate.subject = {};
+					- user_certificate.issuer = {};
+				dt Certificate ID
+				dd #{user_certificate.id}
 				dt Subject Common Name
-				dd #{user_stored_certificate.subject.CN}
+				dd #{user_certificate.subject.CN}
 				dt Issuer Common Name
-				dd #{user_stored_certificate.issuer.CN}
+				dd #{user_certificate.issuer.CN}
 				dt Fingerprint
-				dd #{user_stored_certificate.fingerprint}
+				dd #{user_certificate.fingerprint}
 				dt Valid Start
-				dd #{user_stored_certificate.valid_from}
+				dd #{user_certificate.valid_from}
 				dt Valid End
-				dd #{user_stored_certificate.valid_to}
-		else
+				dd #{user_certificate.valid_to}
+		.no-certificate
 			p
 				| No Stored Certificate Found
-				form(action="/certificate", method="POST", id="frm_add_certificate") 
-					input(type="submit", id="add_certificate", value="Add installed certificate")
+				input(type="button", id="add_certificate", value="Add installed certificate")
+

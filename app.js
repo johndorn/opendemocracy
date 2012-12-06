@@ -11,8 +11,9 @@ var express = require('express') // express already extends EventEmitter
   , auth = require('./lib/auth')
   , stylus = require('stylus')
   , nib = require('nib');
+  //, mw_template = require('./lib/express/template_middleware');
 
-//var db = mongoose.connect('mongo://localhost/opendemocracy');
+var db = mongoose.connect('mongo://localhost/opendemocracy');
 
 /**
  */
@@ -68,28 +69,45 @@ app.configure('development', function(){
 var handlers = [
 	  { path: '/', get: routes.home.get }
 	, { path: '/login', get: routes.login.get, post: routes.login.post }
+	, { path: '/logout', get: routes.logout.get }
 	, { path: '/register', get: routes.register.get, post: routes.register.post }
-	//, { path: '/profile', get: [auth.restrict, routes.profile.get], post: [auth.restrict, routes.login.editProfile] } 
-	, { path: '/certificate', get: [auth.restrict, routes.certificate.get], post: [auth.restrict, routes.certificate.post] } 
+	, { path: '/profile', get: [auth.restrict, routes.profile.get], post: [auth.restrict, routes.profile.post] } 
+	, { path: '/certificate/:id?', get: [auth.restrict, routes.certificate.get], put: [auth.restrict, routes.certificate.put], delete: [auth.restrict, routes.certificate.delete] }
 	//, { path: '/restricted', get: [auth.restrict, auth.verifyCertificate, routes.login.get] }
 ];
 
+function baseVariables(req, res, next) {
+	res.locals.user = req.session.user;
+	res.locals.session = req.session;
+	res.locals.sub_nav = {};
+
+	// These can provide feedback via session variables or template bindings
+	res.locals.error = req.session.error; 
+	res.locals.feedback = req.session.feedback;
+	next();
+}
+
 for( var i = 0, len = handlers.length; i < len; i++) {
+	console.log(handlers[i]);
 	if(handlers[i].get) {
 		var params = fixRoute('get', handlers[i].get);
-		eval('app.get(handlers[i].path, ' + params.join(',') + ');');
+		console.log('setting get');
+		eval('app.get(handlers[i].path, baseVariables, ' + params.join(',') + ');');
 	}
 	if(handlers[i].put) {
 		var params = fixRoute('put', handlers[i].put);
-		eval('app.put(handlers[i].path, ' + params.join(',') + ');');
+		console.log('setting put');
+		eval('app.put(handlers[i].path, baseVariables, ' + params.join(',') + ');');
 	}
 	if(handlers[i].post) {
 		var params = fixRoute('post', handlers[i].post);
-		eval('app.post(handlers[i].path, ' + params.join(',') + ');');
+		console.log('setting post');
+		eval('app.post(handlers[i].path, baseVariables, ' + params.join(',') + ');');
 	}
 	if(handlers[i].delete) {
 		var params = fixRoute('delete', handlers[i].delete);
-		eval('app.delete(handlers[i].path, ' + params.join(',') + ');');
+		console.log('setting delete');
+		eval('app.delete(handlers[i].path, baseVariables, ' + params.join(',') + ');');
 	}
 }
 
