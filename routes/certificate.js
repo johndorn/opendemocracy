@@ -40,12 +40,13 @@ module.exports.delete = function(req, res) {
 		return res.status(401).end(JSON.stringify({"ok":0, "error_msg":'Delete cert id ' + req_id + ' requested but not associated with user'}));
 	}
 
-	User.update({"_id":req.session.user.id}, {$set: {"saved_cert": null}}, function(err, user) {
+	User.update({"_id":req.session.user._id}, {$set: {"saved_cert": null}}, function(err, user) {
 		if(err)
 			return ajax_error(res, 500, err);
 		Certificate.find({"_id": saved_cert_id}).remove(function(err) {
 			if(err)
 				return ajax_error(res, 500, err);
+			req.session.user.saved_cert = null;
 			return res.status(200).end(JSON.stringify({"ok":1}));
 		});
 	});
@@ -57,15 +58,26 @@ module.exports.put = function(req, res) {
 	// Save user record with cert that now has id
 	if(req.session.user.saved_cert)
 		return res.status(405).end(JSON.stringify({"ok":0, "error_msg":"Certificate already installed. Please delete existing certificate to replace."}));
-		
+	console.log('got put');	
 	new Certificate(auth.getCertificate()).save(function(err, cert) {
+		console.log('save cert');	
 		if(err)
 			return ajax_error(res, 500, err);
 
-		User.update({"_id":req.session.user.id}, {$set: {"saved_cert": cert.id}}, function(err, user) {
+		console.log('passed err - save cert ' + cert.id);	
+		User.update({"_id":req.session.user._id}, {$set: {"saved_cert": cert.id}}, function(err, user) {
+			console.log('update user');	
 			if(err)
 				return ajax_error(res, 500, err);
-			req.session.user = user;
+			console.log('passed err - update user ' + req.session.user.id);	
+			/*req.session.regenerate(function(){
+				// regenerate the session to save the user object with cert in the session
+				req.session.user = user;
+				req.session.success = 1;
+				return res.status(200).end(JSON.stringify({"ok":1, "cert":cert}));
+			});*/
+			req.session.user.saved_cert = cert.id;
+			console.log('set user session, returning');	
 			return res.status(200).end(JSON.stringify({"ok":1, "cert":cert}));
 		});
 	});

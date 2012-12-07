@@ -4,8 +4,10 @@ block custom_script
 		$(document).ready(function(){
 			var certificate_id = '#{user_certificate.id}';
 			$('#delete_certificate').click(function(e) {
+				console.log('delete');
 				if( ! certificate_id )
 					return false;
+				console.log('delete - ajax');
 				$.ajax('/certificate/' + certificate_id, {
 					type: 'DELETE',
 					success: function(data) {
@@ -20,6 +22,7 @@ block custom_script
 				});
 			});
 			$('#add_certificate').click(function(e) {
+				console.log('add');
 				$.ajax('/certificate/new', {
 					type: 'PUT',
 					success: function(data) {
@@ -30,7 +33,7 @@ block custom_script
 					},
 					error: function(data) {
 						var d = JSON.parse(data);
-						alert('Error deleting certificate. ' + data.error_msg);
+						alert('Error adding certificate. ' + data.error_msg);
 					}
 				});
 			});
@@ -50,18 +53,19 @@ block content
 					- user_certificate.subject = {};
 					- user_certificate.issuer = {};
 				dt Certificate ID
-				dd #{user_certificate.id}
+				dd(id="cert_id") #{user_certificate.id}
 				dt Subject Common Name
-				dd #{user_certificate.subject.CN}
+				dd(id="cert_subject_cn") #{user_certificate.subject.CN}
 				dt Issuer Common Name
-				dd #{user_certificate.issuer.CN}
+				dd(id="cert_issuer_cn") #{user_certificate.issuer.CN}
 				dt Fingerprint
-				dd #{user_certificate.fingerprint}
+				dd(id="cert_fingerprint") #{user_certificate.fingerprint}
 				dt Valid Start
-				dd #{user_certificate.valid_from}
+				dd(id="cert_valid_from") #{user_certificate.valid_from}
 				dt Valid End
-				dd #{user_certificate.valid_to}
-		.no-certificate
+				dd(id="cert_valid_to") #{user_certificate.valid_to}
+		- var hide_class2 = ;
+		div(class="no-certificate" + (! user_certificate) ? '' : ' hide')
 			p
 				| No Stored Certificate Found
 				input(type="button", id="add_certificate", value="Add installed certificate")
