@@ -4,7 +4,7 @@ block custom_script
 		$(document).ready(function(){
 			var certificate_id = '#{user_certificate.id}';
 			$('#delete_certificate').click(function(e) {
-				console.log('delete');
+				console.log('delete: ' + certificate_id);
 				if( ! certificate_id )
 					return false;
 				console.log('delete - ajax');
@@ -64,7 +64,6 @@ block content
 				dd(id="cert_valid_from") #{user_certificate.valid_from}
 				dt Valid End
 				dd(id="cert_valid_to") #{user_certificate.valid_to}
-		- var hide_class2 = ;
 		div(class="no-certificate" + (! user_certificate) ? '' : ' hide')
 			p
 				| No Stored Certificate Found

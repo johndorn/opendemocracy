@@ -71,9 +71,16 @@ var handlers = [
 	, { path: '/login', get: routes.login.get, post: routes.login.post }
 	, { path: '/logout', get: routes.logout.get }
 	, { path: '/register', get: routes.register.get, post: routes.register.post }
-	, { path: '/profile', get: [auth.restrict, routes.profile.get], post: [auth.restrict, routes.profile.post] } 
-	, { path: '/certificate/:id?', get: [auth.restrict, routes.certificate.get], put: [auth.restrict, routes.certificate.put], delete: [auth.restrict, routes.certificate.delete] }
-	//, { path: '/restricted', get: [auth.restrict, auth.verifyCertificate, routes.login.get] }
+	, { path: '/profile', get: [auth.restrict(), routes.profile.get], post: [auth.restrict(), routes.profile.post] } 
+	, { path: '/certificate/:id?', get: [auth.restrict(), routes.certificate.get], put: [auth.restrict(), routes.certificate.put], delete: [auth.restrict(), routes.certificate.delete] }
+	// should change auth.restrict() to auth.restrict()(auth_level) that returns a function reference
+	// verifying access of auth_level
+	, { path: '/ballot/create', put: [auth.restrict('ballot_admin'), auth.verifyCertificate, routes.ballot.create.put], post: [auth.restrict(), auth.verifyAdmin, auth.verifyCertificate, routes.ballot.create.post]}
+	, { path: '/ballot/submit', put: [auth.restrict(), auth.verifyCertificate, routes.ballot.put], post: [auth.restrict(), auth.verifyCertificate, routes.ballot.post]}
+	, { path: '/ballot/:id?', get: [auth.restrict(), auth.verifyCertificate, routes.ballot.get] }
+	, { path: '/issue/create', put: [auth.restrict('issue_admin'), auth.verifyCertificate, routes.issue.put], post: [auth.restrict(), auth.verifyAdmin, auth.verifyCertificate, routes.issue.post]}
+	, { path: '/issue/:id?', get: [auth.restrict(), auth.verifyCertificate, routes.issue.get] }
+	//, { path: '/restricted', get: [auth.restrict(), auth.verifyCertificate, routes.login.get] }
 ];
 
 function baseVariables(req, res, next) {

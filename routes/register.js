@@ -1,7 +1,6 @@
 
 var   auth = require('../lib/auth')
-	, User = require('../lib/user')
-	, util = require('../lib/util');
+	, User = require('../lib/user');
 
 exports.get = function(req, res) {
 	if(req.user) {

@@ -1,6 +1,5 @@
 
-var auth = require('../lib/auth')
-	, util = require('../lib/util');
+var auth = require('../lib/auth');
 
 exports.get = function(req, res) {
 	req.session.destroy();

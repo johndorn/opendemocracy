@@ -1,6 +1,5 @@
 
-var auth = require('../lib/auth')
-	, util = require('../lib/util');
+var auth = require('../lib/auth');
 
 // show login page or logged in page
 exports.get = function(req, res) {

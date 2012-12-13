@@ -1,8 +1,9 @@
 
 // Initialize the cluster and get reference to http object
 var cluster = require('cluster')
-  , https = require('https')
-  , fs = require('fs');
+	, https = require('https')
+	, fs = require('fs')
+	, crypto = require('./lib/cryptoUtil').getInstance();
 
 var argv = require('optimist')
 	.usage('Start web service.\nUsage $0')
@@ -20,6 +21,11 @@ var argv = require('optimist')
 //var cpus = require('os').cpus().length || 1;
 var cpus = 1;
 
+var pkey = fs.readFileSync(argv.k)
+	, server_public_cert = fs.readFileSync(argv.c)
+	, certificate_authority = fs.readFileSync(argv.a);
+crypto.setPrivateKey(pkey);
+
 // If we're the master, fork for each CPU
 if ( cluster.isMaster ) {
 	
@@ -36,9 +42,9 @@ if ( cluster.isMaster ) {
 	// app type is express
 	var app = require('./app');
 	var serverOpts = {
-		key: fs.readFileSync(argv.k), // server private key
-		cert: fs.readFileSync(argv.c), // server certificate
-		ca: fs.readFileSync(argv.a), // authorized certificate authority
+		key: pkey, // server private key
+		cert: server_public_cert, // server certificate
+		ca: certificate_authority, // authorized certificate authority
 		requestCert: true, // get client cert
 		rejectUnauthorized: false // reject unauthorized certificates
 		//rejectUnauthorized: true // reject unauthorized certificates
