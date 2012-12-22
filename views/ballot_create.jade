@@ -1,0 +1,14 @@
+extend layout
+block custom_script
+	script(type='text/javascript')
+		$(document).ready(function(){
+		});
+
+block content
+	.ballot-menu
+		p
+			| Select Ballot
+		ul.ballot-list
+			each ballot in ballots
+				li.ballot-item
+					a(href='/ballot/' + ballot.id) #{ballot.subject}
