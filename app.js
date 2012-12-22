@@ -78,8 +78,6 @@ var handlers = [
 	, { path: '/ballot/create', put: [auth.restrict('ballot_admin'), auth.verifyCertificate, routes.ballot.create.put], post: [auth.restrict(), auth.verifyAdmin, auth.verifyCertificate, routes.ballot.create.post]}
 	, { path: '/ballot/submit', put: [auth.restrict(), auth.verifyCertificate, routes.ballot.put], post: [auth.restrict(), auth.verifyCertificate, routes.ballot.post]}
 	, { path: '/ballot/:id?', get: [auth.restrict(), auth.verifyCertificate, routes.ballot.get] }
-	, { path: '/issue/create', put: [auth.restrict('issue_admin'), auth.verifyCertificate, routes.issue.put], post: [auth.restrict(), auth.verifyAdmin, auth.verifyCertificate, routes.issue.post]}
-	, { path: '/issue/:id?', get: [auth.restrict(), auth.verifyCertificate, routes.issue.get] }
 	//, { path: '/restricted', get: [auth.restrict(), auth.verifyCertificate, routes.login.get] }
 ];
 
@@ -95,27 +93,19 @@ function baseVariables(req, res, next) {
 }
 
 for( var i = 0, len = handlers.length; i < len; i++) {
-	console.log(handlers[i]);
-	if(handlers[i].get) {
-		var params = fixRoute('get', handlers[i].get);
-		console.log('setting get');
-		eval('app.get(handlers[i].path, baseVariables, ' + params.join(',') + ');');
-	}
-	if(handlers[i].put) {
-		var params = fixRoute('put', handlers[i].put);
-		console.log('setting put');
-		eval('app.put(handlers[i].path, baseVariables, ' + params.join(',') + ');');
-	}
-	if(handlers[i].post) {
-		var params = fixRoute('post', handlers[i].post);
-		console.log('setting post');
-		eval('app.post(handlers[i].path, baseVariables, ' + params.join(',') + ');');
-	}
-	if(handlers[i].delete) {
-		var params = fixRoute('delete', handlers[i].delete);
-		console.log('setting delete');
-		eval('app.delete(handlers[i].path, baseVariables, ' + params.join(',') + ');');
-	}
+	if(handlers[i].get)
+		eval(createRouteString('get', handlers[i].get));
+	if(handlers[i].put)
+		eval(createRouteString('put', handlers[i].put));
+	if(handlers[i].post)
+		eval(createRouteString('post', handlers[i].post));
+	if(handlers[i].delete)
+		eval(createRouteString('delete', handlers[i].delete));
+}
+
+function createRouteString(method, handlers) {
+	var params = fixRoute(method, handlers);
+	return 'app.' + method + '(handlers[i].path, baseVariables, ' + params.join(',') + ');';
 }
 
 function fixRoute(verb, handlers) {
