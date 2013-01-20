@@ -4,10 +4,8 @@ block custom_script
 		$(document).ready(function(){
 			var certificate_id = '#{user_certificate.id}';
 			$('#delete_certificate').click(function(e) {
-				console.log('delete: ' + certificate_id);
 				if( ! certificate_id )
 					return false;
-				console.log('delete - ajax');
 				$.ajax('/certificate/' + certificate_id, {
 					type: 'DELETE',
 					success: function(data) {
@@ -22,7 +20,6 @@ block custom_script
 				});
 			});
 			$('#add_certificate').click(function(e) {
-				console.log('add');
 				$.ajax('/certificate/new', {
 					type: 'PUT',
 					success: function(data) {

@@ -2,12 +2,47 @@ extend layout
 block custom_script
 	script(type='text/javascript')
 		$(document).ready(function(){
+			$('#create_ballot').click(function(e) {
+				$.ajax('/ballot/create', {
+					type: 'PUT',
+					success: function(data) {
+						var d = JSON.parse(data);
+						certificate_id = d.cert.id;
+						$('.certificate').show();
+						$('.no-certificate').hide();
+					},
+					error: function(data) {
+						var d = JSON.parse(data);
+						alert('Error adding certificate. ' + data.error_msg);
+					}
+				});
+			});
+			
+			$('#add_measure
 		});
 
 block content
 	.ballot-menu
 		p
 			| Select Ballot
+			input(type="button", id="create_ballot", value="Create New Ballot")
+			.new-ballot
+				#new-ballot-form
+					label
+						| Subject
+						input(type='text', id='subject', name='subject', size='40')
+					label
+						| Description
+						textarea(name='description', rows='5', cols='70')
+					label
+						| Type
+						select(name='type', id='measure_type', size='40')
+							option(value='irv', selected='selected') Instant Runoff Measure
+							option(value='majority') Majority Measure
+					label
+						| Choices
+						input(type='button', id='add_choice', value="Add Choice")
+					input(type='button', id='add_measure', value="Add Measure")
 		ul.ballot-list
 			each ballot in ballots
 				li.ballot-item

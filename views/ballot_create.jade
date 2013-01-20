@@ -2,12 +2,28 @@ extend layout
 block custom_script
 	script(type='text/javascript')
 		$(document).ready(function(){
+			$('#create_ballot').click(function(e) {
+				$.ajax('/ballot/create', {
+					type: 'PUT',
+					success: function(data) {
+						var d = JSON.parse(data);
+						certificate_id = d.cert.id;
+						$('.certificate').show();
+						$('.no-certificate').hide();
+					},
+					error: function(data) {
+						var d = JSON.parse(data);
+						alert('Error adding certificate. ' + data.error_msg);
+					}
+				});
+			});
 		});
 
 block content
 	.ballot-menu
 		p
 			| Select Ballot
+			input(type="button", id="create_ballot", value="Create New Ballot")
 		ul.ballot-list
 			each ballot in ballots
 				li.ballot-item
